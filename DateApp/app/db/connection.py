@@ -37,8 +37,3 @@ def get_omnisci_connection():
 
 def get_omnisci_con_string():
     return omnisci_connection_string
-
-if __name__ == "__main__":
-    print("started")
-    create_engine(postgres_connection_string)
-    print("conected")
