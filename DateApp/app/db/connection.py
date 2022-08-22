@@ -4,9 +4,6 @@ import os
 import sqlite3
 from .load_periodo import load_periodo
 
-postgres_connection_string="postgresql://user_longrungrowth:YjkqSNQ_CG6M25TKf@postgresql11.db.huma-num.fr/longrungrowth"
-omnisci_connection_string="mapd://LongRunGrowth:w5BJSkf8RUzTb7Aj@omnisci.db.huma-num.fr:6278/LongRunGrowth?protocol=https"
-
 
 db_created = False
 path = os.path.dirname(os.path.realpath(__file__))
@@ -33,11 +30,9 @@ def get_engine():
     return engine
 
 def get_postgre_connection():
-    # return postgres_connection_string
     return get_engine()
 
 def get_omnisci_connection():
-    # return connect(omnisci_connection_string)
     return get_engine()
 
 def get_omnisci_con_string():
