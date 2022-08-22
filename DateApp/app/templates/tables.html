@@ -1,0 +1,171 @@
+{% extends "base.html" %}
+{% block additional_script %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script src="{{url_for('static', filename='js/tables.js')}}"></script>
+    <script type="text/javascript">
+        //create_table({{row_data|tojson}}, {{column_names|tojson}});
+
+        window.onload=function() {
+            get_tl();
+        };
+
+        function get_tl() {
+            var list_ = document.getElementById("tl_list");
+            var list_select = list_.options[list_.selectedIndex].text
+
+            $.ajax({
+                type: "POST",
+                url: `${window.location}tables/`,
+                data: JSON.stringify(list_select),
+                contentType: "application/json;charset=UTF-8",
+                success: function(data) {
+                    create_table(data["row_data"], data["column_names"]);
+                }
+            });
+        };
+
+        function get_table_dict() {
+
+            function getColumn(table_id, col) {
+                var tab = document.getElementById(table_id);
+                var n = tab.rows.length;
+                var i, s = null, tr, td;
+
+                // First check that col is not less then 0
+                if (col < 0) {
+                    return null;
+                }
+                else {
+                    // Initiate dictionary of values
+                    var col_name = tab.rows[0].cells[col].innerText;
+                    var values = [];
+                    // Loop over rows
+                    for (i = 1; i < n; i++) {
+                        tr = tab.rows[i];
+                        if (tr.cells.length > col) {
+                            td = tr.cells[col];
+                            values.push(td.innerText);
+                        }
+                    }
+                    // Set result as a dict
+                    dict_result = {[col_name]: values};
+                    return dict_result;
+                }
+            };
+
+            var table_dict = getColumn('table-main', 1);
+
+            for (i = 2; i <= document.getElementById('table-main').rows[0].cells.length - 1; i++) {
+                table_dict = Object.assign({}, table_dict, getColumn("table-main", i));
+            };
+
+            return table_dict;
+        };
+
+        function print_submit_changes() {
+            var table = get_table_dict();
+
+            var list_ = document.getElementById("tl_list");
+            var list_select = list_.options[list_.selectedIndex].text
+
+            console.log(table, list_select);
+
+            // add variables for pop up modal
+            document.getElementById("table_submit_changes").innerHTML = list_select;
+        };
+
+
+        function submit_changes() {
+            var table = get_table_dict();
+
+            var list_ = document.getElementById("tl_list");
+            var list_select = list_.options[list_.selectedIndex].text
+
+            console.log(table, list_select);
+            $.ajax({
+                type: "POST",
+                url: `${window.location}submit_changes/`,
+                data: JSON.stringify([list_select, table]),
+                contentType: "application/json;charset=UTF-8"
+            });
+        };
+
+
+        var t = document.querySelector("table");
+
+var j = [].reduce.call(t.rows, function(res, row) {
+    res[row.cells[0].textContent.slice(0,-1)] = row.cells[1].textContent;
+    return res
+}, {});
+
+
+    </script>
+{% endblock %}
+{% block title %}Date Tables{% endblock %}
+
+{% block content %}
+    <div class="row d-flex justify-content-center mt-3">
+        <div class="row w-75 p-0 mb-5 h-100">
+            <h3 class="font-weight-lighter mb-5 mt-5">Date Tables</h3>
+            <p class="font-weight-light text-left m-0">This pages allows you to look at what PostgreSQL tables we have available for date data in the LongRunGrowth project. You can select a table from the menu below
+                                                                and check out the data. If you want to edit existing information you can edit on the cells and type the changes you want to make. In case you want to add a row to the 
+                                                                table with more information, click the <code>Add row</code> button at the end of the table and edit the information you wish to include in the table. After you are done 
+                                                                with your edits, click the <code>Submit</code> button to updata the PostgreSQL table.
+            </p>
+        </div>
+        <div class="row w-75 p-0 mb-5 h-100 mt-3">
+            <div class="col-12 mb-3"> <!-- onload="get_tl()" -->
+                <select class="form-select form-select-sm" aria-label=".form-select-sm example" id="tl_list"  onchange="get_tl();">
+                    {% for tl_ in date_tables %}
+                        <option value="{{tl_}}" style="background-color:black;">{{tl_}}</option>
+                    {% endfor %}
+                  </select>
+            </div>
+            <section class="spreadsheet">
+                <div class="tableFixHead h-100" style="height: 40em !important;">
+                    <table class="spreadsheet__table table bg-white font-weight-light table-hover table-bordered" id="table-main">
+                        <thead class="spreadsheet__table--headers" id="table-headers">
+                        </thead>
+                        <tbody class="spreadsheet__table--body" id="table-body">
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+            <div class="d-flex justify-content-center">
+                <!-- <button type="button" class="btn btn-info btn-block mt-3 w-100 mr-1" method="post" onclick="submit_changes();">Submit Changes</button> -->
+                <!-- Button trigger modal -->
+                <button type="button" class="btn btn-info btn-block mt-3 w-100" data-toggle="modal"
+                        data-target="#review_submit_changes" method="post" onclick="print_submit_changes();">Submit Changes</button>
+                <!-- Modal -->
+                <div class="modal fade" id="review_submit_changes" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h6 class="modal-title" id="exampleModalLabel">Not so fast! Make sure the information below is correct</h6>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="row">
+                                    <p class="text-left">Edited table: <strong id="table_submit_changes"></strong></p>
+                                    <p class="text-left">Make sure that the table above is the one displayed on the screen and the one you want to edit. By hitting Submit below you will
+                                                        delete the current table and replace it by your changes.
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <div class="d-flex justify-content-center">
+                                    <a onclick='location.reload(true); return false;'>
+                                        <button type="button" class="btn btn-primary mr-3" method="post" onclick="submit_changes()" data-dismiss="modal" aria-label="Close">Submit</button>
+                                    </a>
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal" aria-label="Close">Review</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+
+    <head>
+        <!-- Required meta tags -->
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <!-- Bootstrap CSS and Leaflet -->
+        {% block additional_script %}{% endblock %}
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6" crossorigin="anonymous">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css">
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+        <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" rel="stylesheet" />
+        <link rel="canonical" href="https://getbootstrap.com/docs/4.0/examples/sticky-footer/">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+        <!-- Styles CSS -->
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+        <link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='images/apple-touch-icon.png') }}">
+        <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='images/favicon-32x32.png') }}">
+        <link rel="icon" type="image/png" sizes="16x16" href="{{ url_for('static', filename='images/favicon-16x16.png') }}">
+        <link rel="manifest" href="{{ url_for('static', filename='images/site.webmanifest') }}">
+        <meta name="msapplication-TileColor" content="#da532c">
+        <meta name="theme-color" content="#ffffff">
+        <!-- <link rel="stylesheet" href='../static/css/style.css'> -->
+        {% block leaflet_script %}{% endblock %}
+        <!-- Set title to page -->
+        <title>{% block title %}{% endblock %}</title>
+    </head>
+
+    <body class="text-center" style="height:100vh;">
+        <div class="bg-image">
+            <nav class="navbar navbar-expand-lg navbar-light bg-light" style="background-color: #06b9f0 !important; height: 15vh !important;">
+                <div class="mx-auto order-0">
+                    <div class="navbar-collapse" id="navbarNav">
+                        <ul class="navbar-nav">
+                            <li class="nav-item">
+                                <a class="nav-link h4 text-light font-weight-light mr-5 ml-3" href=/dateapp/ >Home</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link h4 text-light font-weight-light mr-5 ml-3" href=/dateapp/manual/ >Manual</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link h4 text-light font-weight-light mr-5 ml-3" href=/dateapp/tables/ >Tables</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link h4 text-light font-weight-light mr-5 ml-3" href=/dateapp/check/ >Check</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link h4 text-light font-weight-light mr-5 ml-3" href=/dateapp/review/ >Review</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+            {% block content %}{% endblock %}
+            <footer class="d-flex justify-content-center navbar sticky-bottom text-muted border-0 p-3">
+                <p class="justify-content-center font-weight-lighter">© LongRunGrowth {{year}}</p>
+            </footer>
+        </div>
+        {% block additional_js %}{% endblock %}
+    </body>

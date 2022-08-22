@@ -1,0 +1,16 @@
+pandas
+numpy
+sqlalchemy
+requests
+#tqdm
+Flask
+#Flask-Jsonpify
+#Flask-SQLAlchemy
+#Flask-Migrate
+#Flask-Login
+#Flask-WTF
+gunicorn
+Werkzeug
+pymapd
+psycopg2-binary
+git+https://56388fb842b5b54d879c4f953a6415d0ae4d7c67@github.com/LongRunGrowth/DateCleaning.git

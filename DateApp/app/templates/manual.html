@@ -1,0 +1,184 @@
+{% extends "base.html" %}
+{% block title %}Date App Manual{% endblock %}
+{% block content %}
+<div class="row d-flex justify-content-center mt-3">
+    <div class="row w-75 p-0 mb-5 h-100">
+        <h3 class="font-weight-lighter mb-5 mt-5">Manual Date Check</h3>
+        <p class="font-weight-light text-left m-0">In this page you can include manual mappings and other correction types in order to fix date strings. Here, you will also find explanations on how to use these techniques and what each method
+                                                    is doing.
+        </p>
+
+        <div class="row w-75 p-0 mb-5 h-100 mt-5">
+            <div class="col-12">
+                <h4 class="d-flex font-weight-light">1. Create a manual entry for a missing date</h4>
+                <p class="font-weight-light text-left m-0 mb-3">Sometimes the Date package cannot find a location in any of the APIs it uses or it finds the wrong one. When that is the case, the best solution might be to create an entry for a date
+                                                                        manually. For example, if we could not find a mapping for <code>qing dynasty</code> we could assing it to the start date <code>1636</code> and end date <code>1917</code>. If you
+                                                                        are happy with your mapping, fill the forms below and hit the submit button.
+                </p>
+                <div class="d-flex mt-3">
+                    <input type="input_string" class="form-control form-control-sm mr-1" id="input_string" placeholder="What is the input string for this date?" required>
+                    <input type="notes" class="form-control form-control-sm ml-1" id="notes" placeholder="Where did you find this information?(paste link to website)">
+                </div>
+                <div class="d-flex mt-3">
+                    <input type="date_start" class="form-control form-control-sm mr-1" id="date_start" placeholder="What is the date start?">
+                    <input type="date_end" class="form-control form-control-sm ml-1" id="date_end" placeholder="What is the date end?">
+                </div>
+
+                <div class="d-flex mt-3">
+                    <label class="font-weight-light text-left m-0 mb-3">
+                        Location:
+                    </label>
+
+                    <div id="div_country_list">
+                        <!--<input list="countries_1" id="countries_input_1"  class="form-control form-control-sm mr-1"
+                        style="width: 435px; margin-left: 30px;">
+                        <datalist id="countries_1">
+                            {% for country in country_list %}
+                                <option>{{country}}</option>
+                            {% endfor %}
+                          </datalist>-->
+                    </div>
+                    <div >
+                        <button type="button" class="btn btn-primary btn-sm" onclick="add_country_list(html_countries)">+</button>
+                    </div>
+                    <div id="div_remove_button">
+
+                    </div>
+                 </div>
+
+
+
+                <div class="d-flex mt-3">
+                    <textarea id="comments" class="form-control form-control-sm mr-1"
+                    rows="3"  placeholder="Comments"></textarea>
+                </div>
+
+                <div class="d-flex form-check form-switch w-100 justify-content-left"
+                     style="padding-left: 40px; padding-top: 20px">
+                     <div class="d-flex form-check form-switch w-80 justify-content-left">
+                         <input class="form-check-input" type="checkbox" id="date_original_mm">
+                         <p>Date Original</p>
+                     </div>
+                     <div style="padding-left: 300px;">
+                         <input type="input_string" class="form-control form-control-sm mr-1"
+                       placeholder="Periodo id" id="periodo_input">
+
+                     </div>
+                    <div  style="padding-left: 20px" >
+                        <button type="button" class="btn btn-primary btn-sm" onclick="query_periodo()">
+                             Query Periodo
+                         </button>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-center">
+                    <!-- Button trigger modal -->
+                    <button type="button" class="btn btn-success btn-lg btn-block mt-3 w-100" data-toggle="modal" data-target="#review_manual_date" method="post" onclick="print_check();">Submit manual date</button>
+                    <!-- Modal -->
+                    <div class="modal fade" id="review_manual_date" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h6 class="modal-title" id="exampleModalLabel">Not so fast! Make sure the information below is correct</h6>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="row">
+                                    <p class="text-left" id="check_input_string"></p>
+                                    <p class="text-left" id="check_notes"></p>
+                                    <p class="text-left" id="check_date_start"></p>
+                                    <p class="text-left" id="check_date_end"></p>
+                                    <p class="text-left" id="check_comments"></p>
+                                    <p class="text-left" id="check_countries"></p>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <div class="d-flex justify-content-center">
+                                    <a onclick='location.reload(true); return false;'>
+                                        <button type="button" class="btn btn-primary mr-3" method="post" onclick="manual_date(false)"
+                                                data-dismiss="modal" aria-label="Close">Submit</button>
+                                    </a>
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal" aria-label="Close">Review</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row w-75 p-0 mb-5 h-100 mt-5">
+            <div class="col-12">
+                <h4 class="d-flex font-weight-light">2. Reassign a string to another</h4>
+                <p class="font-weight-light text-left m-0 mb-3">If you want the date package to treat one string as if it
+                    were one of our mapped or validated string, use the option bellow.
+                </p>
+                <div class="alert alert-success" id="alert_syn" role="alert" style="display: none;">
+                  Synonym added!
+                </div>
+                <div class="d-flex mt-3">
+                    <input type="input_string" onfocus="hide_alert()" class="form-control form-control-sm mr-1" id="input_syn_original" placeholder="What is the input string for this date?" required>
+                    <input type="notes" onfocus="hide_alert()"  class="form-control form-control-sm ml-1" id="input_syn_mapped" placeholder="To which string it should be mapped to?">
+                </div>
+                <div class="d-flex mt-3">
+                    <textarea id="comments_syn" class="form-control form-control-sm mr-1" onfocus="hide_alert()"
+                    rows="3"  placeholder="Comments"></textarea>
+                </div>
+                <div class="d-flex form-check form-switch w-50 justify-content-left"
+                     style="padding-left: 40px; padding-top: 20px">
+                     <input class="form-check-input" type="checkbox" id="date_original_syn">
+                     <p>Date Original</p>
+                </div>
+
+                <button type="button" class="btn btn-success btn-lg btn-block mt-3 w-100"  method="post"
+                        onclick="submit_syn(false);">Submit synonym</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+
+    var html_countries = ""
+
+    function set_country_list() {
+        input_countries = `<input list="countries_1" id="countries_input_1"  class="form-control form-control-sm mr-1"
+            style="width: 435px; margin-left: 30px;">
+            <datalist id="countries_1">
+                ${html_countries}
+          </datalist>`;
+          $("#div_country_list").html(input_countries)
+    }
+
+    function add_country_list(html_countries_list) {
+        if (n_lists == 1) {
+            $("#div_remove_button").append(`<button id="remove_list" type="button"
+                            class="btn btn-primary btn-sm" style="margin-left: 5px;"
+                            onclick="remove_country_list()">-</button>`)
+        }
+
+        id = n_lists + 1;
+        countries_list = `<div id="div_list_${id}"><input list="countries_list_${id}" id="countries_input_${id}"
+                 class="form-control form-control-sm mr-1"
+                 style="width: 435px; margin-left: 30px; margin-top: 5px;">
+          <datalist id="countries_list_${id}">
+                ${html_countries_list}
+          </datalist></div>`;
+        $("#div_country_list").append(countries_list);
+        n_lists = n_lists + 1;
+    };
+
+    $(document).ready(function(){
+        {% for country in country_list %}
+            html_countries += "<option>{{country}}</option>"
+        {% endfor %}
+        set_country_list()
+    });
+</script>
+<script src="{{url_for('static', filename='js/manual.js')}}"></script>
+
+
+{% endblock %}

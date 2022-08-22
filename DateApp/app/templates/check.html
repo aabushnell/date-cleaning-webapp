@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% block title %}Date App Check{% endblock %}
+{% block content %}
+    <div class="row w-75 d-flex  justify-content-center ">
+        <div class="col mb-5 h-100">
+            <h3 class="font-weight-lighter mb-5 mt-5">Date Check</h3>
+            <p class="font-weight-light ">In this page you can query strings with the LRG Date App and check the result. You can also check how many times
+                                            this string shows up in our data, how many museums have this date string and the flags associated with your query.
+                                            This page reflects corrections right away and should be used to check whether a correction has worked or not.
+            </p>
+        </div>
+        <!--<div class="row w-75 p-0 mb-5 h-100">
+
+            <div class="col-12">
+                <form action="" novalidate class="form-inline mb-3">
+                    <div class="form-group mr-3" style='width:100%'>
+                        <input type="text" id="dateSearch" name="date_search" style="width:91%;" class="form-control mr-3" placeholder="Query date string here..."><br>
+
+                        <div id="div_country_list">
+                        </div>
+                        <p class="mb-0" style="width:7%;">
+                            <button type="button" class="form-group btn btn-primary w-100" method="post" onclick="date_query();">Search</button>
+                        </p>
+                    </div>
+
+
+                </form>
+            </div>
+        </div>-->
+        <div class="container">
+            <div class="row">
+                <div class="col"><input type="text" class="form-control form-control-sm mr-1" id="dateSearch" name="date_search"  placeholder="Query date string here"></div>
+                <div class="col">
+                    <div id="div_country_list">
+                        <input list="countries_1" id="countries_input_1"  class="form-control form-control-sm mr-1"
+                            style="width: 435px; margin-left: 30px;">
+                            <datalist id="countries_1">
+                                {% for country in country_list %}
+                                    <option>{{country}}</option>
+                                {% endfor %}
+                            </datalist>
+                    </div>
+                </div>
+                <div class="col">
+                    <button type="button" class=" btn btn-primary " method="post" onclick="date_query();">Search</button>
+                </div>
+            </div>
+        </div>
+        <div class="row w-75 p-0 mb-5 h-100">
+            <p class="font-weight-light text-left m-0" id="result_text">The result of your query will be shown here.
+
+        </div>
+    </div>
+
+    <script type="text/javascript">
+
+        var myLink = document.getElementById("submit-btn");
+
+        function date_query() {
+            var json = {date: $("#dateSearch").val(),
+                        country: $("#countries_input_1").val()}
+            var url = `${window.location}`;
+
+            $.ajax({
+                type: "POST",
+                url: url + "search/",
+                data: JSON.stringify(json),
+                contentType: "application/json;charset=UTF-8",
+                success : function(data){
+                    console.log("Data properly loaded");
+                    console.log(data);
+
+                    var text_string = `The date string <code id=\"date_original\">{{date_original}}</code> has start date <code id=\"date_start\">{{date_start}}</code> and end date <code id=\"date_end\">{{date_end}}</code>. `;
+                    text_string = text_string + `This string has flag <code id=\"date_flags\">{{date_flags}}</code>. This information was retrieved with version <code>{{pkg_version}}</code> of the Date package.`
+                    text_string = text_string + `</br>Country Code: </br>Country debug: </br> Country matched label: `
+                    text_string = text_string + `</br> LOG:<code id=\"log\">{{log}}</code>`
+
+                    document.getElementById("result_text").innerHTML = text_string
+                    document.getElementById("date_original").innerHTML = data["date_results"]["date_results"]["date_original"];
+                    document.getElementById("date_start").innerHTML = data["date_results"]["date_results"]["date_start"];
+                    document.getElementById("date_end").innerHTML = data["date_results"]["date_results"]["date_end"];
+                    document.getElementById("date_flags").innerHTML = data["date_results"]["date_results"]["date_flags"];
+                    document.getElementById("log").innerHTML = data["date_results"]["date_results"]["log"];
+                    // document.getElementById("date_match_spatial").innerHTML = data["date_results"]["date_results"]["date_match_spatial"];
+                }
+            });
+        };
+
+    </script>
+
+
+{% endblock %}

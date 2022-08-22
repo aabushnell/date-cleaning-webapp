@@ -1,0 +1,566 @@
+    {% extends "base.html" %}
+    {% block title %}Date Review{% endblock %}
+    {% block content %}
+        <div class="row d-flex justify-content-center mt-3">
+            <div class="row w-75 p-0 mb-3 h-100">
+                <h3 class="font-weight-lighter mb-5 mt-5">Review Date Strings</h3>
+                <p class="font-weight-light text-left m-0">Below you will find date strings that need to be reviewed and either validated or corrected. If you reached this page by querying random date debug strings you will see below
+                                                            10 random date strings that are among the top 1000 most common flagged date strings. If you reached this page by filtering date strings you will be shown the result of your
+                                                            query.
+                </p>
+                <p class="font-weight-light text-left m-0 mt-3">If you need more information, you can also take a look at the google results for this location string by pressing the
+                                                                            <i class="fa fa-google"></i> button next to the string or look at the location flags associated with each location string.
+                                                                            For more information on what the location flag codes mean <code data-toggle="modal" data-target="#date_flags" method="post"><a href="#" class="nounderline">click here</a></code>.
+                </p>
+
+                <div class="modal fade" id="date_flags" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-lg" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title w-100 bd-highlight text-wrap">Date Flags</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <h6 class="text-left">The date flag is a code that gives the user information on the quality of a given date debug string.
+                                    You can decode it according to the explanation below.</h6>
+                                <br></br>
+                                <p class="text-left">The first part of the code defines the type of flagging of a string and can take the following values:</p>
+                                <div class="row d-flex justify-content-center mt-3">
+                                    <ul class="list-group list-group-flush w-50">
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            <span class="badge badge-primary">FF</span>
+                                            Fully flagged location
+                                        </li>
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            <span class="badge badge-primary">NF</span>
+                                            Not flagged location
+                                        </li>
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            <span class="badge badge-primary">UF</span>
+                                            Unflagged location
+                                        </li>
+                                    </ul>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="container">
+                <div class="row">
+                    <div class="col">
+                    </div>
+                    <div class="col">
+                        <select id="flags" class="form-select form-select-sm">
+                            {% for flag in flags %}
+                            <option value="{{flag}}">{{flag}}</option>
+                            {% endfor %}
+                        </select>
+
+                    </div>
+                    <div class="col">
+
+                        <select id="museums" class="form-select form-select-sm">
+                            {% for id_ in museum_ids %}
+                            <option value="{{id_}}">{{id_}}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col">
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col">
+                    </div>
+                    <div class="col">
+
+                        <input class="form-control form-control-sm mr-1"
+                               id="score_start" name="search_input_string" placeholder="Score greater than"
+                               style="height: 25px">
+                    </div>
+                    <div class="col">
+                            <input  class="form-control form-control-sm mr-1"
+                               id="score_end" name="search_input_string" placeholder="Score lower than"
+                               style="height: 25px">
+                    </div>
+                    <div class="col">
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col">
+                    </div>
+                    <div class="col">
+                        <input type="input_string" class="form-control form-control-sm mr-1"
+                               id="search_input_string" name="search_input_string" placeholder="Input string"
+                               style="height: 25px">
+                    </div>
+                    <div class="col">
+                            <button class="btn btn-primary btn-block "
+                                    data-dismiss="modal"
+                                    aria-label="Close" onclick="generate_table()">Query
+                            </button>
+                    </div>
+                    <div class="col">
+                    </div>
+                </div>
+                <br/>
+                <div class="row">
+                    <div class="col"></div>
+                    <div class="col">
+                        <!-- type="submit" -->
+                        <form method=post enctype=multipart/form-data class="d-flex">
+                            <input type=file name=file class="form-control">
+                            <input type=submit value=Upload
+                                   class="btn btn-primary  ">
+                        </form>
+                    </div>
+                    <div class="col"></div>
+                </div>
+             </div>
+
+            <div class="row w-75 p-0 mb-3 h-100 mt-5">
+                <div class="col-12 mb-3">
+                    <div id="table_review" class="tableFixHead h-100" style="height: 40em !important;">
+                        <table class="table bg-white font-weight-light table-hover table-bordered" id="table">
+                            <thead>
+                                <tr>
+                                    <th class="font-weight-light bg-dark text-light" style="width:14em; font-size:0.9em;">Date</th>
+                                    <th class="font-weight-light bg-dark text-light" style="width:12em; font-size:0.9em;">Date Debug</th>
+                                    <th class="font-weight-light bg-dark text-light" style="width:4em; font-size:0.9em;">Start</th>
+                                    <th class="font-weight-light bg-dark text-light" style="width:4em; font-size:0.9em;">End</th>
+                                    <th class="font-weight-light bg-dark text-light" style="width:10em; font-size:0.9em;">Chrono Match</th>
+                                    <th class="font-weight-light bg-dark text-light" style="width:4em; font-size:0.9em;">Score</th>
+                                    <th class="font-weight-light bg-dark text-light" style="width:4em; font-size:0.9em;">Count</th>
+                                    <th class="font-weight-light bg-dark text-light" style='width:12em; font-size:0.9em'>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="table_body">
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- Modal Edit synonym-manual mapping-->
+            <div class="modal fade" id="edit" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-lg" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title w-100 bd-highlight text-wrap" id="exampleModalLabel">Manual mapping and synonyms: <code id="correction_text"></code></h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="row w-75 p-0 mb-5 h-100 mt-5">
+                                <div class="col-12">
+                                    <h4 class="d-flex font-weight-light">1. Create a manual entry for a missing date</h4>
+                                    <div class="alert alert-success" id="alert_manual" role="alert" style="display: none;">
+                                        Manual mapping saved!
+                                    </div>
+                                    <div class="alert alert-warning" id="error_manual" role="alert" style="display: none;">
+                                        Fill all the necessary information!
+                                    </div>
+                                    <div class="d-flex mt-3">
+                                        <input type="input_string" class="form-control form-control-sm mr-1" id="input_string" placeholder="What is the input string for this date?">
+                                        <input type="notes" class="form-control form-control-sm ml-1" id="notes" placeholder="Where did you find this information?(paste link to website)">
+                                    </div>
+                                    <div class="d-flex mt-3">
+                                        <input type="date_start" class="form-control form-control-sm mr-1" id="date_start" placeholder="What is the date start?">
+                                        <input type="date_end" class="form-control form-control-sm ml-1" id="date_end" placeholder="What is the date end?">
+                                    </div>
+
+                                    <div class="d-flex mt-3">
+                                        <label class="font-weight-light text-left m-0 mb-3">
+                                            Location:
+                                        </label>
+
+                                        <div id="div_country_list">
+                                            <input list="countries_1" id="countries_input_1"
+                                                   class="form-control form-control-sm mr-1"
+                                                    style="width: 435px; margin-left: 30px;">
+                                            <datalist id="countries_1">
+                                                {% for country in country_list %}
+                                                    <option>{{country}}</option>
+                                                {% endfor %}
+                                            </datalist>
+                                        </div>
+                                        <div>
+                                            <button type="button" class="btn btn-primary btn-sm" onclick="add_country_list()">+</button>
+                                        </div>
+                                        <div id="div_remove_button">
+                                            <!-- DONT REMOVE THIS DIV -->
+                                        </div>
+                                    </div>
+
+                                    <div class="d-flex mt-3">
+                                        <textarea id="comments" class="form-control form-control-sm mr-1"
+                                        rows="3"  placeholder="Comments"></textarea>
+                                    </div>
+
+                <div class="d-flex form-check form-switch w-100 justify-content-left"
+                     style="padding-left: 40px; padding-top: 20px">
+                     <div class="d-flex form-check form-switch w-80 justify-content-left">
+                         <input class="form-check-input" type="checkbox" id="date_original_mm">
+                         <p>Date Original</p>
+                     </div>
+                     <div style="padding-left: 100px;">
+                         <input type="input_string" class="form-control form-control-sm mr-1"
+                       placeholder="Periodo id" id="periodo_input">
+
+                     </div>
+                    <div  style="padding-left: 20px" >
+                        <button type="button" class="btn btn-primary btn-sm" onclick="query_periodo(true)">
+                             Query Periodo
+                         </button>
+                    </div>
+                </div>
+
+                                    <div class="d-flex justify-content-center">
+                                        <button type="button" class="btn btn-success btn-lg btn-block mt-3 w-100" method="post" onclick="manual_date(true);">Submit manual date</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row w-75 p-0 mb-5 h-100 mt-5">
+                                <div class="col-12">
+                                    <h4 class="d-flex font-weight-light">2. Reassign a string to another</h4>
+                                    <div class="alert alert-success" id="alert_syn" role="alert" style="display: none;">
+                                      Synonym added!
+                                    </div>
+                                    <div class="d-flex mt-3">
+                                        <input type="input_string" onfocus="hide_alert()" class="form-control form-control-sm mr-1" id="input_syn_original" placeholder="What is the input string for this date?" required>
+                                        <input type="notes" onfocus="hide_alert()"  class="form-control form-control-sm ml-1" id="input_syn_mapped" placeholder="To which string it should be mapped to?">
+                                    </div>
+                                    <div class="d-flex mt-3">
+                                        <textarea id="comments_syn" class="form-control form-control-sm mr-1" onfocus="hide_alert()"
+                                        rows="3"  placeholder="Comments"></textarea>
+                                    </div>
+                                    <div class="d-flex form-check form-switch w-50 justify-content-left"
+                                         style="padding-left: 40px; padding-top: 20px">
+                                         <input class="form-check-input" type="checkbox" id="date_original_syn">
+                                         <p>Date Original</p>
+                                    </div>
+                                    <button type="button" class="btn btn-success btn-lg btn-block mt-3 w-100"  method="post"
+                                            onclick="submit_syn(true);">Submit synonym</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal more info-->
+            <div class="modal fade" id="modal_more_info" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-lg" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h4 id="more_info_title" style="0 auto;"></h4>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="row p-0 mb-3 mt-5">
+                                <div id="table_more_info" class="tableFixHead"> <!--  style="height: 40em !important;" -->
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- Used in the manual mapping modal -->
+        <script src="{{url_for('static', filename='js/manual.js')}}"></script>
+
+        <script type="text/javascript">
+            $(document).ready ( function(){
+               generate_table()
+            });
+
+            function generate_table() {
+                debugger;
+                var museums = $("#museums").val()
+                var query = {
+                    search_input_string: $("#search_input_string").val(),
+                    museums: museums,
+                    score_start: $("#score_start").val(),
+                    score_end: $("#score_end").val(),
+                    flag: $("#flags").val()
+                };
+                var url = `${window.location}`;
+                url = url.substring(0, url.lastIndexOf('/')) + "/query/"
+
+                $.ajax({
+                    type: "POST",
+                    url: url,
+                    data: JSON.stringify(query),
+                    contentType: "application/json;charset=UTF-8",
+                    dataType: "json",
+                    success: function(data) {
+                        fill_table(data)
+                    }
+                });
+            }
+
+            function fill_table(data_frame) {
+                table_html = get_html_table(data_frame)
+                $("#table_body").html(table_html)
+            }
+
+            function get_html_table(data_frame) {
+                table_html = "";
+                for(var i = 0; i < data_frame["data"].length; i++) {
+                    table_html += get_table_line(data_frame["data"][i], i)
+                };
+                return table_html;
+            }
+
+            function get_table_line(line, i) {
+                var date_match_id = line["date_match_id"].replace("periodo:", "")
+                var date_original_english = ""
+                if (line["date_original"] != null && line["date_original"] != ""
+                    && line["date_original"].toLowerCase() != line["date_english"].toLowerCase()) {
+                    date_original_english = line["date_original"] + "<br>"
+                }
+                date_original_english += line["date_english"] + "<br>" + line["location_mapped_country"]
+                line_html = "<tr>"
+                line_html += `<td class="text-center" style="font-size:0.8em;">${date_original_english}</td>`
+                line_html += `<td class="text-center" style="font-size:0.8em;" data-toggle="tooltip" data-placement="top"><a href="https://www.google.com/search?q=${line["date_debug"]}" target="_blank"><i class="fa fa-google"></i></a> ${line["date_debug"]}<br>${line["date_debug_spatial"]}</td>`
+                line_html += `<td class="text-left" style="font-size:0.8em;">${line["date_start"]}</td>`
+                line_html += `<td class="text-left" style="font-size:0.8em;">${line["date_end"]}</td>`
+                line_html += `<td class="text-center" style="font-size:0.8em;" data-toggle="tooltip" data-placement="top"><a href="https://chronontology.dainst.org/search?q=${date_match_id}" target="_blank"><i class="fa fa-search"></i></a> ${line["date_match_label"]}<br>${line["date_match_spatial"]}</td>`
+                line_html += `<td class="text-left" style="font-size:0.8em;">${line["date_match_score"]}</td>`
+                line_html += `<td class="text-left" style="font-size:0.8em;">${line["count_obj"]}</td>`
+                line_html += get_html_actions(i)
+                line_html += "</tr>"
+
+                return line_html;
+            }
+
+            function get_html_actions(i) {
+                html = "<td>"
+                html += `<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modal_more_info" method="post" onclick="more_info(${i});"><i class="fa fa-eye"></i></button>`
+                html += `<button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#edit" method="post" onclick="show_modal_manual_mapping(this, ${i});"><i class="fa fa-pencil"></i></button>`
+
+                if ($("#flags").val() == 'FF-CH') {
+                    html += `<button type="button" class="btn btn-danger" data-toggle="modal" data-target="#delete" method="post" onclick="save_checked_date(this, ${i}, 0)"><i class="fa fa-trash"></i></button>`
+                    html += `<button type="button" class="btn btn-success" data-toggle="modal" data-target="#success" method="post" onclick="save_checked_date(this, ${i}, 1)"><i class="fa fa-check"></i></button>`
+                }
+                html += "</td>"
+                return html;
+            }
+
+            // correct is 0 or 1
+            function save_checked_date(row, i, correct) {
+
+                var date_debug = row.closest("tr").cells[0].textContent;
+                var url = `${window.location}`;
+                url = url.substring(0, url.lastIndexOf('/')) + "/save/"
+
+                tr = row.closest("tr");
+            /*
+                var date_english = tr.cells[0].textContent.split("_")[0]
+                var location_mapped_country = tr.cells[0].textContent.split("_")[1]
+                var date_debug = tr.cells[1].textContent.split("_")[0]
+                var date_debug_spatial = tr.cells[1].textContent.split("_")[1]
+                var date_start = tr.cells[2].textContent.split("-")[0]
+                var date_end = tr.cells[2].textContent.split("-")[1]
+                var date_match_label = tr.cells[3].textContent.split("_")[0]
+                var date_match_id = tr.cells[3].textContent.split("_")[1].split(",")[1]
+                var date_match_spatial = tr.cells[3].textContent.split("_")[1].split(",")[0]
+                var date_match_score = tr.cells[4].textContent
+
+                var json = {
+                    date_english: date_english,
+                    date_start: date_start,
+                    date_end: date_end,
+                    location_mapped_country: location_mapped_country,
+                    date_debug: date_debug,
+                    date_match_label: date_match_label,
+                    date_match_score: date_match_score,
+                    date_match_spatial: date_match_spatial,
+                    date_match_id: date_match_id,
+                    correct: correct
+                };*/
+                var json = {
+                    line_number: i,
+                    correct: correct
+                };
+
+                $.ajax({
+                    type: "POST",
+                    url: url,
+                    data: JSON.stringify(json),
+                    contentType: "application/json;charset=UTF-8",
+                });
+
+
+                if (correct) {
+                    $(row).closest("tr").css("background-color", "#d4edda");//green
+                } else {
+                    $(row).closest("tr").css("background-color", "#f8d7da");//red
+                }
+            }
+
+            var row;
+
+            function more_info(line_number) {
+
+                var query = {
+                    line_number: line_number,
+                    museum: $("#museums").val()
+                }
+
+                //document.getElementById("more_info_text").innerHTML = date_debug;
+                // Send location debug to backend
+                var url = `${window.location}`;
+                url = url.substring(0, url.lastIndexOf('/')) + "/more_info/"
+
+                $.ajax({
+                    type: "POST",
+                    url: url,
+                    data: JSON.stringify(query),
+                    contentType: "application/json;charset=UTF-8",
+                    success: function(data) {
+                        create_more_info_table(data["row_data"], data["column_names"]);
+                       var title = `Date original: ${data["date_debug"]},${data["location_mapped_country"]} <br>
+                             Chrono match: ${data["date_match_label"]}, ${data["date_match_spatial"]} <br>
+                             (${data["date_start"]}, ${data["date_end"]})`
+                        $("#more_info_title").html(title)
+                    }
+                });
+            };
+
+            function create_more_info_table(row_data, column_names) {
+                // row and header data
+                var row_data = row_data;
+                var headers = column_names;
+                //--->create data table > start
+                var tbl = '';
+                tbl +='<table class="table bg-white font-weight-light table-hover">'
+                    //--->create table header > start
+                    tbl +='<thead>';
+                        //tbl +='<tr row_id="'+row_id+'">';
+                        tbl +='<tr row_id="10">';
+                        headers.forEach(function(e) {
+                            tbl +='<th class="font-weight-light bg-dark text-light" style="width:13em; font-size:0.8em;">'+e+'</th>';
+                        });
+                        tbl +='</tr>';
+                    tbl +='</thead>';
+                    //--->create table header > end
+                    //--->create table body > start
+                    tbl +='<tbody>';
+                        //--->create table body rows > start
+                        $.each(row_data, function(index, val)
+                        {
+                            tbl +='<tr>';
+                            $.each(Object.keys(val), function(index, key)
+                            {
+                                tbl +='<td ><div class="row_data" edit_type="click" col_name="'+key+'" style="font-size:0.6em;">'+val[key]+'</div></td>';
+                            });
+                            tbl +='</tr>';
+                        });
+                        //--->create table body rows > end
+                    tbl +='</tbody>';
+                    //--->create table body > end
+                tbl +='</table>'
+                //--->create data table > end
+                //out put table data
+                $("#table_more_info").html(tbl);
+            };
+
+            function get_closest(x) {
+                row = x.closest("tr");
+            };
+
+            function more_info_edit(line_number) {
+
+                var query = {
+                    line_number: line_number
+                }
+                var url = `${window.location}`;
+                url = url.substring(0, url.lastIndexOf('/')) + "/get_row_date/"
+
+                $.ajax({
+                    type: "POST",
+                    url: url,
+                    data: JSON.stringify(query),
+                    contentType: "application/json;charset=UTF-8",
+                    success: function(data) {
+                        $("#input_string").val(data["date_english"])
+                        $("#input_syn_original").val(data["date_english"])
+                    }
+                });
+
+            };
+
+            function show_modal_manual_mapping(row, line_number) {
+                $(row).closest("tr").css("background-color", "#fff2cc");//yellow
+                $("#alert_manual").hide();
+                $("#error_manual").hide();
+                $("#input_string").val("");
+                $("#notes").val("");
+                $("#date_start").val("");
+                $("#date_end").val("");
+                $("#comments").val("");
+                $("#location").val("");
+                $("#notes").val("");
+
+                $("#input_syn_original").val("");
+                $("#input_syn_mapped").val("");
+                $("#comments_syn").val("");
+                $('#date_original_syn').prop("checked", false)
+                $('#date_original_mm').prop("checked", false)
+                hide_alert();
+
+                set_html_div_countries();
+                more_info_edit(line_number)
+            }
+
+            function set_html_div_countries() {
+                html_countries = `<input list="countries_1" id="countries_input_1"  class="form-control form-control-sm mr-1"
+                    style="width: 435px; margin-left: 30px;">
+                    <datalist id="countries_1">
+                    {% for country in country_list %}
+                        <option>{{country}}</option>
+                    {% endfor %}
+                  </datalist>`;
+                  $("#div_country_list").html(html_countries)
+            }
+
+            function add_country_list() {
+                if (n_lists == 1) {
+                    $("#div_remove_button").append(`<button id="remove_list" type="button"
+                                    class="btn btn-primary btn-sm" style="margin-left: 5px;"
+                                    onclick="remove_country_list()">-</button>`)
+                }
+
+                id = n_lists + 1;
+                countries_list = `<div id="div_list_` + id + `"><input list="countries_list_` + id + `" id="countries_input_` + id + `"
+                         class="form-control form-control-sm mr-1"
+                         style="width: 435px; margin-left: 30px; margin-top: 5px;">
+                  <datalist id="countries_list_` + id + `">
+                        {% for country in country_list %}
+                            <option>{{country}}</option>
+                        {% endfor %}
+                  </datalist></div>`;
+                $("#div_country_list").append(countries_list);
+                n_lists = n_lists + 1;
+            };
+
+        </script>
+
+
+    {% endblock %}
